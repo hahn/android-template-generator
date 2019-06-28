@@ -21,6 +21,11 @@ class TemplateGenerator:
         os.chdir(my_dir)
         self.copy_template_files(self.package_id)
         self.copy_template_project(package_path)
+        self.copy_template_res()
+
+        os.chdir(my_dir)
+        print("change package name to {}".format(self.package_id))
+        self.replace_package_id(self.default_package, self.package_id)
 
     def replace_package_build_gradle(self, default_pkg, new_pkg):
         file_input = "build.gradle"
@@ -36,8 +41,51 @@ class TemplateGenerator:
         with open(file_input, 'w') as file:
             file.write(filedata)
 
-    def replace_package_in_file(self, fileName, defPkg, newPkg):
-        print("change package id in AndroidManifest")
+    def replace_package_id(self, def_pkg, new_pkg):
+        path = "{}/{}".format(os.getcwd(), self.output_dir)
+        print("path: {}".format(path))
+        patterns = [".kt", ".xml"]
+
+        matching_file_list = [os.path.join(dp, f)
+                              for dp, dn, filenames in os.walk(path)
+                              for f in filenames
+                              if os.path.splitext(f)[1] in patterns]
+        print('Files found matching patterns: ' + str(len(matching_file_list)))
+        fileCount = 0
+        filesReplaced = 0
+
+        for currentFile in matching_file_list:
+
+            fileCount += 1
+            fileReplaced = self.replace_package_in_file(currentFile, def_pkg, new_pkg)
+            if fileReplaced:
+                filesReplaced += 1
+
+        print("Total Files Searched         : " + str(fileCount))
+        print("Total Files Replaced/Updated : " + str(filesReplaced))
+
+    def replace_package_in_file(self, file_name, def_pkg, new_pkg):
+        # print("change package id in file {}".format(file_name))
+        file_updated = False
+
+        with open(file_name, 'r') as f:
+            new_lines = []
+            for line in f.readlines():
+                if def_pkg in line:
+                    file_updated = True
+                line = line.replace(def_pkg, new_pkg)
+                new_lines.append(line)
+
+        if file_updated:
+            print("String found and update file {}".format(file_name))
+            try:
+                with open(file_name, 'w') as f:
+                    for line in new_lines:
+                        f.write(line)
+            except:
+                print("ERROR! Can't access file {}".format(file_name))
+
+        return file_updated
 
     def make_dir(self, pkg_id):
         path = pkg_id.replace(".", "/")
@@ -45,6 +93,7 @@ class TemplateGenerator:
         android_test_dir = "{}/{}".format("androidTest/java", path)
         main_dir = "{}/{}".format("main/java", path)
         test_dir = "{}/{}".format("test/java", path)
+        res_dir = "main/res"
 
         print("path: {}".format(path))
 
@@ -68,6 +117,7 @@ class TemplateGenerator:
             os.chdir(app_dir)
             print(os.getcwd())
             os.makedirs(main_dir)
+            os.makedirs(res_dir)
             os.makedirs(android_test_dir)
             os.makedirs(test_dir)
         else:
@@ -108,6 +158,12 @@ class TemplateGenerator:
         copy_tree(
             "{}/{}".format("template/app/src/test/java", self.template_dir),
             "{}/{}/{}".format(self.output_dir, "app/src/test/java", pkg_path)
+        )
+
+    def copy_template_res(self):
+        copy_tree(
+            "{}".format("template/app/src/main/res"),
+            "{}/{}".format(self.output_dir, "app/src/main/res")
         )
 
 
