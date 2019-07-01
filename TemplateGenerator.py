@@ -2,6 +2,7 @@
 import os
 import shutil
 from distutils.dir_util import copy_tree
+import re
 
 
 class TemplateGenerator:
@@ -26,9 +27,10 @@ class TemplateGenerator:
         os.chdir(my_dir)
         print("change package name to {}".format(self.package_id))
         self.replace_package_id(self.default_package, self.package_id)
+        self.replace_package_build_gradle(self.default_package, self.package_id)
 
     def replace_package_build_gradle(self, default_pkg, new_pkg):
-        file_input = "build.gradle"
+        file_input = "{}/{}".format(self.output_dir, "app/build.gradle")
         filedata = None
         print("replace package id")
         x = "change {} to {}".format(default_pkg, new_pkg)
@@ -101,6 +103,7 @@ class TemplateGenerator:
             os.mkdir(self.output_dir)
         else:
             print("path {} already exists".format(self.output_dir))
+            exit()
 
         # gradle directory
         if not os.path.exists("gradle/wrapper"):
@@ -126,22 +129,24 @@ class TemplateGenerator:
     def copy_template_files(self, pkgId):
 
         # copy gradle stuff
-        shutil.copyfile("template/build.gradle", "{}/{}".format(self.output_dir, "build.gradle"))
-        shutil.copyfile("template/gradle.properties", "{}/{}".format(self.output_dir, "gradle.properties"))
-        shutil.copyfile("template/gradlew", "{}/{}".format(self.output_dir, "gradlew"))
-        shutil.copyfile("template/gradlew.bat", "{}/{}".format(self.output_dir, "gradlew.bat"))
-        shutil.copyfile("template/settings.gradle", "{}/{}".format(self.output_dir, "settings.gradle"))
+        shutil.copy("template/build.gradle", "{}/{}".format(self.output_dir, "build.gradle"))
+        shutil.copy("template/gradle.properties", "{}/{}".format(self.output_dir, "gradle.properties"))
+        shutil.copy("template/gradlew", "{}/{}".format(self.output_dir, "gradlew"))
+        shutil.copy("template/gradlew.bat", "{}/{}".format(self.output_dir, "gradlew.bat"))
+        shutil.copy("template/settings.gradle", "{}/{}".format(self.output_dir, "settings.gradle"))
 
         #  copy wrapper
-        shutil.copyfile("template/gradle/wrapper/gradle-wrapper.jar",
-                        "{}/{}".format(self.output_dir, "gradle/wrapper/gradle-wrapper.jar"))
-        shutil.copyfile("template/gradle/wrapper/gradle-wrapper.properties",
-                        "{}/{}".format(self.output_dir, "gradle/wrapper/gradle-wrapper.properties"))
+        shutil.copy("template/gradle/wrapper/gradle-wrapper.jar",
+                    "{}/{}".format(self.output_dir, "gradle/wrapper/gradle-wrapper.jar"))
+        shutil.copy("template/gradle/wrapper/gradle-wrapper.properties",
+                    "{}/{}".format(self.output_dir, "gradle/wrapper/gradle-wrapper.properties"))
 
         # copy gradle app
-        shutil.copyfile("template/app/build.gradle", "{}/{}".format(self.output_dir, "app/build.gradle"))
-        shutil.copyfile("template/app/dependencies.gradle", "{}/{}".format(self.output_dir, "app/dependencies.gradle"))
-        shutil.copyfile("template/app/proguard-rules.pro", "{}/{}".format(self.output_dir, "app/proguard-rules.pro"))
+        shutil.copy("template/app/build.gradle", "{}/{}".format(self.output_dir, "app/build.gradle"))
+        shutil.copy("template/app/dependencies.gradle", "{}/{}".format(self.output_dir, "app/dependencies.gradle"))
+        shutil.copy("template/app/proguard-rules.pro", "{}/{}".format(self.output_dir, "app/proguard-rules.pro"))
+        shutil.copy("template/app/src/main/AndroidManifest.xml", "{}/{}".format(self.output_dir,
+                                                                                "app/src/main/AndroidManifest.xml"))
 
     def copy_template_project(self, pkg_path):
 
@@ -168,7 +173,17 @@ class TemplateGenerator:
 
 
 if __name__ == "__main__":
-    my_app_name = "MyApp"
-    my_pkg_id = "id.pkg.mvp"
+    my_app_name = input("Nama Aplikasi (default MyApp)? ")
+    my_app_name = my_app_name.replace(" ", "")
+    if my_app_name == "":
+        my_app_name = "MyApp"
+
+    my_pkg_id = "1.1"
+
+    while not re.match("^([a-z_]{1}[a-z0-9_]*(\\.[a-z_]{1}[a-z0-9_]*)*)$", my_pkg_id):
+        my_pkg_id = input("ID nama paket (contoh: com.example? ")
+        print("Format paket salah")
+
+    print("nama: {}, id: {}".format(my_app_name, my_pkg_id))
     generator = TemplateGenerator(pkg_id=my_pkg_id, app_name=my_app_name)
     generator.do_generate()
