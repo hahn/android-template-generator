@@ -181,8 +181,8 @@ if __name__ == "__main__":
     my_pkg_id = "1.1"
 
     while not re.match("^([a-z_]{1}[a-z0-9_]*(\\.[a-z_]{1}[a-z0-9_]*)*)$", my_pkg_id):
-        my_pkg_id = input("ID nama paket (contoh: com.example? ")
-        print("Format paket salah")
+        my_pkg_id = input("ID nama paket (contoh: com.example)? ")
+        print("Format paket salah") #TODO: masih dipanggil meski format sudah benar
 
     print("nama: {}, id: {}".format(my_app_name, my_pkg_id))
     generator = TemplateGenerator(pkg_id=my_pkg_id, app_name=my_app_name)
