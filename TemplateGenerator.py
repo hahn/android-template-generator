@@ -8,7 +8,7 @@ import re
 class TemplateGenerator:
     default_package = "id.example.mvp"
     template_pkg = "id.example.mvp"
-    template_dir = template_pkg.replace(".", "/")
+    template_pkg_dir = template_pkg.replace(".", "/")
 
     def __init__(self, pkg_id, app_name):
         self.app_name = app_name
@@ -151,17 +151,17 @@ class TemplateGenerator:
     def copy_template_project(self, pkg_path):
 
         copy_tree(
-            "{}/{}".format("template/app/src/androidTest/java", self.template_dir),
+            "{}/{}".format("template/app/src/androidTest/java", self.template_pkg_dir),
             "{}/{}/{}".format(self.output_dir, "app/src/androidTest/java", pkg_path)
         )
 
         copy_tree(
-            "{}/{}".format("template/app/src/main/java", self.template_dir),
+            "{}/{}".format("template/app/src/main/java", self.template_pkg_dir),
             "{}/{}/{}".format(self.output_dir, "app/src/main/java", pkg_path)
         )
 
         copy_tree(
-            "{}/{}".format("template/app/src/test/java", self.template_dir),
+            "{}/{}".format("template/app/src/test/java", self.template_pkg_dir),
             "{}/{}/{}".format(self.output_dir, "app/src/test/java", pkg_path)
         )
 
