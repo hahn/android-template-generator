@@ -10,10 +10,11 @@ class TemplateGenerator:
     template_pkg = "id.example.mvp"
     template_pkg_dir = template_pkg.replace(".", "/")
 
-    def __init__(self, pkg_id, app_name):
+    def __init__(self, pkg_id, app_name, template_dir_name):
         self.app_name = app_name
         self.package_id = pkg_id
         self.output_dir = "{}/{}".format("output", app_name)
+        self.template_dir_name = template_dir_name
 
     def do_generate(self):
         package_path = self.package_id.replace(".", "/")
@@ -129,45 +130,53 @@ class TemplateGenerator:
     def copy_template_files(self, pkgId):
 
         # copy gradle stuff
-        shutil.copy("template/build.gradle", "{}/{}".format(self.output_dir, "build.gradle"))
-        shutil.copy("template/gradle.properties", "{}/{}".format(self.output_dir, "gradle.properties"))
-        shutil.copy("template/gradlew", "{}/{}".format(self.output_dir, "gradlew"))
-        shutil.copy("template/gradlew.bat", "{}/{}".format(self.output_dir, "gradlew.bat"))
-        shutil.copy("template/settings.gradle", "{}/{}".format(self.output_dir, "settings.gradle"))
+        shutil.copy("template/{}/build.gradle".format(self.template_dir_name),
+                    "{}/{}".format(self.output_dir, "build.gradle"))
+        shutil.copy("template/{}/gradle.properties".format(self.template_dir_name),
+                    "{}/{}".format(self.output_dir, "gradle.properties"))
+        shutil.copy("template/{}/gradlew".format(self.template_dir_name),
+                    "{}/{}".format(self.output_dir, "gradlew"))
+        shutil.copy("template/{}/gradlew.bat".format(self.template_dir_name),
+                    "{}/{}".format(self.output_dir, "gradlew.bat"))
+        shutil.copy("template/{}/settings.gradle".format(self.template_dir_name),
+                    "{}/{}".format(self.output_dir, "settings.gradle"))
 
         #  copy wrapper
-        shutil.copy("template/gradle/wrapper/gradle-wrapper.jar",
+        shutil.copy("template/{}/gradle/wrapper/gradle-wrapper.jar".format(self.template_dir_name),
                     "{}/{}".format(self.output_dir, "gradle/wrapper/gradle-wrapper.jar"))
-        shutil.copy("template/gradle/wrapper/gradle-wrapper.properties",
+        shutil.copy("template/{}/gradle/wrapper/gradle-wrapper.properties".format(self.template_dir_name),
                     "{}/{}".format(self.output_dir, "gradle/wrapper/gradle-wrapper.properties"))
 
         # copy gradle app
-        shutil.copy("template/app/build.gradle", "{}/{}".format(self.output_dir, "app/build.gradle"))
-        shutil.copy("template/app/dependencies.gradle", "{}/{}".format(self.output_dir, "app/dependencies.gradle"))
-        shutil.copy("template/app/proguard-rules.pro", "{}/{}".format(self.output_dir, "app/proguard-rules.pro"))
-        shutil.copy("template/app/src/main/AndroidManifest.xml", "{}/{}".format(self.output_dir,
-                                                                                "app/src/main/AndroidManifest.xml"))
+        shutil.copy("template/{}/app/build.gradle".format(self.template_dir_name),
+                    "{}/{}".format(self.output_dir, "app/build.gradle"))
+        shutil.copy("template/{}/app/dependencies.gradle".format(self.template_dir_name),
+                    "{}/{}".format(self.output_dir, "app/dependencies.gradle"))
+        shutil.copy("template/{}/app/proguard-rules.pro".format(self.template_dir_name),
+                    "{}/{}".format(self.output_dir, "app/proguard-rules.pro"))
+        shutil.copy("template/{}/app/src/main/AndroidManifest.xml".format(self.template_dir_name),
+                    "{}/{}".format(self.output_dir, "app/src/main/AndroidManifest.xml"))
 
     def copy_template_project(self, pkg_path):
 
         copy_tree(
-            "{}/{}".format("template/app/src/androidTest/java", self.template_pkg_dir),
+            "template/{}/app/src/androidTest/java/{}".format(self.template_dir_name, self.template_pkg_dir),
             "{}/{}/{}".format(self.output_dir, "app/src/androidTest/java", pkg_path)
         )
 
         copy_tree(
-            "{}/{}".format("template/app/src/main/java", self.template_pkg_dir),
+            "template/{}/app/src/main/java/{}".format(self.template_dir_name, self.template_pkg_dir),
             "{}/{}/{}".format(self.output_dir, "app/src/main/java", pkg_path)
         )
 
         copy_tree(
-            "{}/{}".format("template/app/src/test/java", self.template_pkg_dir),
+            "template/{}/app/src/test/java/{}".format(self.template_dir_name, self.template_pkg_dir),
             "{}/{}/{}".format(self.output_dir, "app/src/test/java", pkg_path)
         )
 
     def copy_template_res(self):
         copy_tree(
-            "{}".format("template/app/src/main/res"),
+            "template/{}/app/src/main/res".format(self.template_dir_name),
             "{}/{}".format(self.output_dir, "app/src/main/res")
         )
 
@@ -184,6 +193,8 @@ if __name__ == "__main__":
         my_pkg_id = input("ID nama paket (contoh: com.example)? ")
         print("Format paket salah") #TODO: masih dipanggil meski format sudah benar
 
+    template_dir_name = input("direktori nama template (di direktori template/namanya): ")
+
     print("nama: {}, id: {}".format(my_app_name, my_pkg_id))
-    generator = TemplateGenerator(pkg_id=my_pkg_id, app_name=my_app_name)
+    generator = TemplateGenerator(pkg_id=my_pkg_id, app_name=my_app_name, template_dir_name=template_dir_name)
     generator.do_generate()
